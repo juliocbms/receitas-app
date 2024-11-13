@@ -1,0 +1,1 @@
+export {CadastroReceitas } from './cadastro/page'
