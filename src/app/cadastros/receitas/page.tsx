@@ -1,3 +1,3 @@
-import { CadastroReceitas } from "@/components/page"
+import { CadastroLancamentos } from "@/components/page"
 
-export default CadastroReceitas
+export default CadastroLancamentos

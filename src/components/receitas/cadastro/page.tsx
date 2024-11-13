@@ -3,34 +3,67 @@
 import { useState } from 'react';
 import { Layout, Input } from "@/components/page";
 import React from "react";
+import { useLancamentoService } from '@/app/services/page';
+import { Lancamento } from '@/app/models/lancamentos/page';
 
-export const CadastroReceitas: React.FC = () => {
-
-    const [receita, setReceita] = useState<string>('');
+export const CadastroLancamentos: React.FC = () => {
+    const service = useLancamentoService();
+    const [lancamentos, setLancamento] = useState<string>(''); // Sem valor padrão, espera-se que o usuário escolha
     const [valor, setValor] = useState<string>('');
     const [data, setData] = useState<string>('');
     const [nome, setNome] = useState<string>('');
     const [descricao, setDescricao] = useState<string>('');
+    const [usuario, setUsuario] = useState<string>('1'); // Defina um valor padrão para o usuário
 
     const submit = () => {
-        const lancamento = {
-            receita,
-            valor,
-            data,
-            nome,
+        if (!lancamentos) {
+            alert('Por favor, selecione o tipo de lançamento!');
+            return;
+        }
+
+        // Verificação da data antes de extrair o mês e o ano
+        const dataDate = new Date(data); 
+        if (isNaN(dataDate.getTime())) { // Se a data for inválida
+            alert('Por favor, forneça uma data válida.');
+            return;
+        }
+
+        const mes = dataDate.getMonth() + 1; // O mês no JavaScript começa do 0 (janeiro é 0)
+        const ano = dataDate.getFullYear();
+
+        // Validação de mês
+        if (mes < 1 || mes > 12) {
+            alert('Informe um mês válido (1-12).');
+            return;
+        }
+
+        const lancamento: Lancamento = {
             descricao,
+            mes,
+            ano,
+            valor: parseFloat(valor),
+            tipo: lancamentos.toUpperCase(), // O tipo precisa ser "RECEITA" ou "DESPESA"
+            usuario: parseInt(usuario), // Converte o usuário para número
+            nome,
         };
-        console.log(lancamento);
+
+        service
+            .salvar(lancamento)
+            .then(lancamentoResposta => console.log(lancamentoResposta))
+            .catch(error => {
+                console.error("Erro ao salvar lançamento", error);
+                alert('Erro ao salvar lançamento. Tente novamente.');
+            });
     };
 
     return (
-        <Layout titulo="Cadastro de Receitas">
+        <Layout titulo="Cadastro de Lançamentos">
             <div className="columns">
                 <Input
-                    label="Tipo Receita: *"
+                    label="Tipo Lançamento: *"
                     columnClasses="is-one-third"
-                    onChange={setReceita}
-                    value={receita}
+                    onChange={setLancamento}
+                    value={lancamentos}
                     id="tipoReceita"
                     type="select"
                 />
@@ -42,7 +75,7 @@ export const CadastroReceitas: React.FC = () => {
                     value={valor}
                     id="inputValor"
                     type="input"
-                    placeholder='Digite um valor'
+                    placeholder="Digite um valor"
                 />
 
                 <Input
@@ -51,37 +84,32 @@ export const CadastroReceitas: React.FC = () => {
                     onChange={setData}
                     value={data}
                     id="inputData"
-                    type='input'
+                    type="input"
                     placeholder="Digite uma data"
-
                 />
             </div>
 
             <div className="columns">
-
                 <Input
                     label="Nome: *"
                     columnClasses="is-full"
                     onChange={setNome}
                     value={nome}
                     id="inputNome"
-                    type='input'
+                    type="input"
                     placeholder="Digite um nome "
-
                 />
             </div>
 
             <div className="columns">
-
                 <Input
                     label="Descrição: *"
                     columnClasses="is-full"
                     onChange={setDescricao}
                     value={descricao}
                     id="inputDescricao"
-                    type='textarea'
+                    type="textarea"
                     placeholder="Digite uma descrição"
-
                 />
             </div>
 
