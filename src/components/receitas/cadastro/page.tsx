@@ -8,12 +8,28 @@ import { Lancamento } from '@/app/models/lancamentos/page';
 
 export const CadastroLancamentos: React.FC = () => {
     const service = useLancamentoService();
-    const [lancamentos, setLancamento] = useState<string>(''); // Sem valor padrão, espera-se que o usuário escolha
+    const [lancamentos, setLancamento] = useState<string>(''); 
     const [valor, setValor] = useState<string>('');
     const [data, setData] = useState<string>('');
     const [nome, setNome] = useState<string>('');
     const [descricao, setDescricao] = useState<string>('');
-    const [usuario, setUsuario] = useState<string>('1'); // Defina um valor padrão para o usuário
+    const [usuario, setUsuario] = useState<string>('1'); 
+
+    const handleDateChange = (value: string) => {
+        
+        value = value.replace(/\D/g, '');
+
+        if (value.length > 8) return; 
+
+        
+        if (value.length > 4) {
+            value = value.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
+        } else if (value.length > 2) {
+            value = value.replace(/(\d{2})(\d{2})/, "$1/$2");
+        }
+
+        setData(value);
+    };
 
     const submit = () => {
         if (!lancamentos) {
@@ -21,29 +37,34 @@ export const CadastroLancamentos: React.FC = () => {
             return;
         }
 
-        // Verificação da data antes de extrair o mês e o ano
-        const dataDate = new Date(data); 
-        if (isNaN(dataDate.getTime())) { // Se a data for inválida
-            alert('Por favor, forneça uma data válida.');
+        const formattedDate = data.replace(/\D/g, ''); 
+        if (formattedDate.length !== 8) {
+            alert('Por favor, forneça uma data válida no formato dd/mm/yyyy.');
             return;
         }
 
-        const mes = dataDate.getMonth() + 1; // O mês no JavaScript começa do 0 (janeiro é 0)
-        const ano = dataDate.getFullYear();
+        const dia = parseInt(formattedDate.slice(0, 2), 10);
+        const mes = parseInt(formattedDate.slice(2, 4), 10);
+        const ano = parseInt(formattedDate.slice(4, 8), 10);
 
-        // Validação de mês
-        if (mes < 1 || mes > 12) {
-            alert('Informe um mês válido (1-12).');
+        const dataDate = new Date(ano, mes - 1, dia);
+        if (isNaN(dataDate.getTime()) || dataDate.getDate() !== dia) {
+            alert('Data inválida! Por favor, insira uma data existente.');
             return;
         }
+
+        
+        const formattedDateForAPI = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
         const lancamento: Lancamento = {
             descricao,
+            dia,
+            dataCadastro: formattedDateForAPI, 
             mes,
             ano,
             valor: parseFloat(valor),
-            tipo: lancamentos.toUpperCase(), // O tipo precisa ser "RECEITA" ou "DESPESA"
-            usuario: parseInt(usuario), // Converte o usuário para número
+            tipo: lancamentos.toUpperCase(),
+            usuario: parseInt(usuario),
             nome,
         };
 
@@ -81,11 +102,11 @@ export const CadastroLancamentos: React.FC = () => {
                 <Input
                     label="Data: *"
                     columnClasses="is-one-third"
-                    onChange={setData}
+                    onChange={handleDateChange} 
                     value={data}
                     id="inputData"
                     type="input"
-                    placeholder="Digite uma data"
+                    placeholder="Digite uma data no formato dd/mm/yyyy"
                 />
             </div>
 

@@ -2,12 +2,13 @@ export interface Lancamento {
     id?: number;
     nome?: string;
     valor?: number;
-    data?: Date; // Ou "data?: number" se você preferir armazenar como timestamp (milissegundos desde 1970)
+    data?: Date; 
     descricao?: string;
-    lancamentos?: 'RECEITA' | 'DESPESA'; // Definindo valores possíveis para o campo 'lancamentos'
+    lancamentos?: 'RECEITA' | 'DESPESA'; 
     usuario?: number;
-    mes?: number; // Mês (1-12)
-    ano?: number; // Ano
+    dataCadastro?: string;
+    mes?: number; 
+    ano?: number; 
     dia?: number; 
     tipo?: string;
 }
