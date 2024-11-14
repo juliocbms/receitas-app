@@ -5,6 +5,7 @@ import { Layout, Input } from "@/components/page";
 import React from "react";
 import { useLancamentoService } from '@/app/services/page';
 import { Lancamento } from '@/app/models/lancamentos/page';
+import { converterEmBigDecimal } from '@/app/util/money/page';
 
 export const CadastroLancamentos: React.FC = () => {
     const service = useLancamentoService();
@@ -13,7 +14,8 @@ export const CadastroLancamentos: React.FC = () => {
     const [data, setData] = useState<string>('');
     const [nome, setNome] = useState<string>('');
     const [descricao, setDescricao] = useState<string>('');
-    const [usuario, setUsuario] = useState<string>('1'); 
+    const [usuario, setUsuario] = useState<string>('1');
+    const [id, setId] = useState<string | undefined>('') 
 
     const handleDateChange = (value: string) => {
         
@@ -59,22 +61,37 @@ export const CadastroLancamentos: React.FC = () => {
         const lancamento: Lancamento = {
             descricao,
             dia,
-            dataCadastro: formattedDateForAPI, 
+            datalancamento: formattedDateForAPI, 
             mes,
             ano,
-            valor: parseFloat(valor),
+            valor: converterEmBigDecimal(valor),
             tipo: lancamentos.toUpperCase(),
             usuario: parseInt(usuario),
             nome,
+            id
         };
 
-        service
+        if(id){
+            service.atualizar(lancamento)
+            .then(response => console.log("Lançamento Atualizado!"))
+
+        }else{
+
+            service
             .salvar(lancamento)
-            .then(lancamentoResposta => console.log(lancamentoResposta))
+            .then(lancamentoResposta => {
+                console.log(lancamentoResposta)
+                setId(lancamentoResposta.id)
+            })
+            
             .catch(error => {
                 console.error("Erro ao salvar lançamento", error);
                 alert('Erro ao salvar lançamento. Tente novamente.');
-            });
+            })
+            ;
+        }
+
+        
     };
 
     return (
@@ -97,6 +114,8 @@ export const CadastroLancamentos: React.FC = () => {
                     id="inputValor"
                     type="input"
                     placeholder="Digite um valor"
+                    currency
+                    maxLength={16}
                 />
 
                 <Input
@@ -106,7 +125,7 @@ export const CadastroLancamentos: React.FC = () => {
                     value={data}
                     id="inputData"
                     type="input"
-                    placeholder="Digite uma data no formato dd/mm/yyyy"
+                    placeholder="Digite uma data "
                 />
             </div>
 
@@ -136,7 +155,9 @@ export const CadastroLancamentos: React.FC = () => {
 
             <div className="field is-grouped">
                 <div className="control">
-                    <button onClick={submit} className="button is-link">Salvar</button>
+                    <button onClick={submit} className="button is-link">
+                        {id ? "Atualizar" : "Salvar"}
+                    </button>
                 </div>
                 <div className="control">
                     <button className="button is-link is-light">Voltar</button>

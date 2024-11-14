@@ -1,12 +1,12 @@
 export interface Lancamento {
-    id?: number;
+    id?: string;
     nome?: string;
     valor?: number;
     data?: Date; 
     descricao?: string;
     lancamentos?: 'RECEITA' | 'DESPESA'; 
     usuario?: number;
-    dataCadastro?: string;
+    datalancamento?: string;
     mes?: number; 
     ano?: number; 
     dia?: number; 

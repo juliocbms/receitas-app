@@ -12,7 +12,13 @@ export const useLancamentoService = () => {
         return response.data
     }
 
+    const atualizar = async (lancamento: Lancamento) : Promise<any> =>{
+        const url: string = `${resourceURL}/${lancamento.id}/atualizar`
+        await httpClient.put<Lancamento>(url,lancamento)
+    }
+
     return{
-        salvar
+        salvar,
+        atualizar
     }
 }

@@ -1,4 +1,5 @@
 import React, { ChangeEvent, InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { formatReal } from "@/app/util/money/page";
 
 
 interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
@@ -7,6 +8,7 @@ interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'on
     columnClasses?: string;
     value: string;
     id: string;
+    currency?: boolean
 }
 
 
@@ -16,6 +18,7 @@ interface SelectInputProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
     columnClasses?: string;
     value: string;
     id: string;
+    currency?: boolean
 }
 
 interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
@@ -24,6 +27,7 @@ interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaEle
     columnClasses?: string;
     value: string;
     id: string;
+    currency?: boolean
 }
 
 
@@ -40,11 +44,20 @@ export const Input: React.FC<InputProps> = ({
     id,
     value,
     type,
+    currency,
     ...rest
 }) => {
     const handleChange = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
+        
+        let value = event.target.value
+
+        if(value && currency){
+            value = formatReal(value)
+        }
+
+
         if (onChange) {
-            onChange(event.target.value);
+            onChange(value);
         }
     };
 

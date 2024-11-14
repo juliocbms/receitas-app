@@ -5,10 +5,13 @@ import Link from "next/link";
 export const Menu: React.FC = () => {
     return (
         <aside className="menu column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile">
-            <p className="menu-label">Geral</p>
+            <p className="menu-label is-hidden-touch">Geral</p>
             <ul className="menu-list">
-                <li><a>Dashboard</a></li>
-                <li><a>Customers</a></li>
+                <MenuItem href="/" label="Home"/>
+                <MenuItem href="/cadastros/receitas" label="Lançamentos"/>
+                <MenuItem href="/" label="Config"/>
+                <MenuItem href="/" label="Sair"/>
+
             </ul>
         </aside>
     )
