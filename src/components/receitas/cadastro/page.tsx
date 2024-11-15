@@ -1,3 +1,4 @@
+// CadastroLancamentos.tsx
 "use client";
 
 import { useState } from 'react';
@@ -6,6 +7,7 @@ import React from "react";
 import { useLancamentoService } from '@/app/services/page';
 import { Lancamento } from '@/app/models/lancamentos/page';
 import { converterEmBigDecimal } from '@/app/util/money/page';
+import { formatarData } from '@/app/util/data/page';  
 
 export const CadastroLancamentos: React.FC = () => {
     const service = useLancamentoService();
@@ -18,19 +20,7 @@ export const CadastroLancamentos: React.FC = () => {
     const [id, setId] = useState<string | undefined>('') 
 
     const handleDateChange = (value: string) => {
-        
-        value = value.replace(/\D/g, '');
-
-        if (value.length > 8) return; 
-
-        
-        if (value.length > 4) {
-            value = value.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
-        } else if (value.length > 2) {
-            value = value.replace(/(\d{2})(\d{2})/, "$1/$2");
-        }
-
-        setData(value);
+        setData(formatarData(value)); // Use a função importada para formatar a data
     };
 
     const submit = () => {
@@ -55,7 +45,6 @@ export const CadastroLancamentos: React.FC = () => {
             return;
         }
 
-        
         const formattedDateForAPI = `${ano}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
 
         const lancamento: Lancamento = {
@@ -76,7 +65,6 @@ export const CadastroLancamentos: React.FC = () => {
             .then(response => console.log("Lançamento Atualizado!"))
 
         }else{
-
             service
             .salvar(lancamento)
             .then(lancamentoResposta => {
@@ -87,11 +75,8 @@ export const CadastroLancamentos: React.FC = () => {
             .catch(error => {
                 console.error("Erro ao salvar lançamento", error);
                 alert('Erro ao salvar lançamento. Tente novamente.');
-            })
-            ;
+            });
         }
-
-        
     };
 
     return (
