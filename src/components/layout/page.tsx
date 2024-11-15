@@ -1,16 +1,19 @@
 import { ReactNode } from 'react'
-import {Menu} from './menu/page'
+import { Menu } from './menu/page'
+import { Message } from '../page'
+import { Alert } from '../common/message/page'
 
-interface LayoutProps{
+interface LayoutProps {
     titulo?: string
     children?: ReactNode
+    mensagens?: Array<Alert>
 }
 
-export const Layout: React.FC<LayoutProps> = (props: LayoutProps ) => {
+export const Layout: React.FC<LayoutProps> = (props: LayoutProps) => {
     return (
         <div className="app">
             <section className="main-content columns is-fullheight">
-                <Menu/>
+                <Menu />
                 <div className="container column is-10">
                     <div className="section">
                         <div className="card">
@@ -21,7 +24,12 @@ export const Layout: React.FC<LayoutProps> = (props: LayoutProps ) => {
                             </div>
                             <div className="card-content">
                                 <div className="content">
-                                    { props.children}
+                                    {props.mensagens &&
+                                        props.mensagens.map((msg, index) => (
+                                            <Message key={msg.texto || index} {...msg} />
+                                        ))
+                                    }                           
+                                    {props.children}
                                 </div>
                             </div>
                         </div>

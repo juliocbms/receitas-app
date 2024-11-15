@@ -1,1 +1,1 @@
-export {CadastroReceitas } from './cadastro/page'
+export {CadastroLancamentos } from './cadastro/page'

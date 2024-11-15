@@ -2,7 +2,7 @@ export interface Lancamento {
     id?: string;
     nome?: string;
     valor?: number;
-    data?: Date; 
+    data?: string; 
     descricao?: string;
     lancamentos?: 'RECEITA' | 'DESPESA'; 
     usuario?: number;

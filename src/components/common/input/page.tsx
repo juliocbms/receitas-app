@@ -9,6 +9,8 @@ interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'on
     value: string;
     id: string;
     currency?: boolean
+    error?: string;
+    type?: string
 }
 
 
@@ -19,6 +21,7 @@ interface SelectInputProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
     value: string;
     id: string;
     currency?: boolean
+    error?: string;
 }
 
 interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
@@ -28,6 +31,8 @@ interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaEle
     value: string;
     id: string;
     currency?: boolean
+    error?: string;
+    type?: string
 }
 
 
@@ -45,13 +50,14 @@ export const Input: React.FC<InputProps> = ({
     value,
     type,
     currency,
+    error,
     ...rest
 }) => {
     const handleChange = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-        
+
         let value = event.target.value
 
-        if(value && currency){
+        if (value && currency) {
             value = formatReal(value)
         }
 
@@ -80,6 +86,7 @@ export const Input: React.FC<InputProps> = ({
                         <option value="Despesa">Despesa</option>
                     </select>
                 </div>
+                {error && <p className="help is-danger">{error}</p>}
             </div>
         );
     }
@@ -95,6 +102,7 @@ export const Input: React.FC<InputProps> = ({
                     className="textarea"
                     {...(rest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
                 />
+                {error && <p className="help is-danger">{error}</p>}
             </div>
         );
     }
@@ -109,6 +117,7 @@ export const Input: React.FC<InputProps> = ({
                 className="input"
                 {...(rest as InputHTMLAttributes<HTMLInputElement>)}
             />
+            {error && <p className="help is-danger">{error}</p>}
         </div>
     );
 };
