@@ -6,7 +6,8 @@ export interface Lancamento {
     descricao?: string;
     lancamentos?: 'RECEITA' | 'DESPESA'; 
     usuario?: number;
-    datalancamento?: string;
+    datalancamento?: string | undefined;
+    datacadastro?: string | undefined;
     mes?: number; 
     ano?: number; 
     dia?: number; 

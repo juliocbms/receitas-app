@@ -11,6 +11,7 @@ import { Alert } from "@/components/common/message/page";
 import { LayoutLista } from "@/components/page"; // Para a lista de lançamentos
 import * as yup from "yup";
 import { useRouter, useSearchParams } from "next/navigation";
+import useSWR, { mutate } from "swr";
 
 const msgCampoObrigatorio = "Campo Obrigatório";
 
@@ -25,7 +26,7 @@ const validationSchema = yup.object().shape({
     data: yup
         .string()
         .required(msgCampoObrigatorio)
-        .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Data deve estar no formato dd/MM/yyyy"),
+        .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Data deve estar no formato dd/mm/yyyy"),
 });
 
 interface FormErros {
@@ -49,25 +50,23 @@ export const CadastroLancamentos: React.FC = () => {
     const [messages, setMessages] = useState<Array<Alert>>([]);
     const [erros, setErrors] = useState<FormErros>({}); 
     const [listaLancamentos, setListaLancamentos] = useState<Lancamento[]>([]);
+    const [isEditMode, setIsEditMode] = useState<boolean>(false);
+    const [datacadastro, setDataCadastro] = useState<string>("");
+     
 
-    // Carregar dados do lançamento caso o id esteja presente na URL
     useEffect(() => {
-        const id = searchParams.get("id"); // Pega o id da URL
-        
+        const id = searchParams.get("id");
         if (id) {
+            setIsEditMode(true); // Habilita o modo de edição
             service.carregarProduto(Number(id))
                 .then((lancamento: Lancamento) => {
-                    console.log('Lançamento carregado:', lancamento); // Verifique a estrutura de dados aqui
                     setId(lancamento.id);
                     setLancamentoTipo(lancamento.tipo || "");
                     setNome(lancamento.nome || "");
                     setDescricao(lancamento.descricao || "");
                     setValor(lancamento.valor ? lancamento.valor.toString() : "0");
-                    
-                    // Formatar a data no formato dd/mm/yyyy
-                    const formattedDate = formatarData(lancamento.data || "");
-                    console.log('Data formatada:', formattedDate); // Verifique se a data está sendo formatada corretamente
-                    setData(formattedDate);
+                    setData(formatarData(lancamento.datalancamento || "")); 
+                    setDataCadastro(formatarData(lancamento.datacadastro || ""));
                 })
                 .catch((err) => {
                     setMessages([{
@@ -76,35 +75,30 @@ export const CadastroLancamentos: React.FC = () => {
                     }]);
                 });
         }
-    }, [searchParams]); // A dependência é o id, então a função será chamada quando o id mudar
+    }, [searchParams]);
 
     const handleDateChange = (value: string) => {
-        const formattedValue = formatarData(value); 
-        setData(formattedValue); 
+        const formattedValue = formatarData(value);
+        setData(formattedValue);
     };
 
     const submit = () => {
-        const formattedDate = data.replace(/\D/g, "");
-        const dia = parseInt(formattedDate.slice(0, 2), 10);
-        const mes = parseInt(formattedDate.slice(2, 4), 10);
-        const ano = parseInt(formattedDate.slice(4, 8), 10);
-
-        const formattedDateForAPI = `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-
+        // Converte data para yyyy-mm-dd antes de enviar
+        const [dia, mes, ano] = data.split("/");
+        const formattedDateForAPI = `${ano}-${mes}-${dia}`;
+    
         const lancamento: Lancamento = {
             descricao,
-            data, 
-            datalancamento: formattedDateForAPI, 
-            dia,
-            mes,
-            ano,
+            data: formattedDateForAPI, // Formato yyyy-mm-dd
+            datalancamento: formattedDateForAPI,
             valor: converterEmBigDecimal(valor),
             tipo: lancamentoTipo.toUpperCase(),
             usuario: parseInt(usuario),
             nome,
             id,
+            datacadastro: formattedDateForAPI
         };
-
+    
         validationSchema
             .validate(lancamento)
             .then(() => {
@@ -113,33 +107,27 @@ export const CadastroLancamentos: React.FC = () => {
                     service.atualizar(lancamento).then(() => {
                         setMessages([{
                             tipo: "success",
-                            texto: "Produto atualizado com sucesso.",
+                            texto: "Lançamento atualizado com sucesso.",
                         }]);
-                        // Atualizar lista de lançamentos
-                        
+                        mutate('/api/lancamentos?usuario=1');
                     });
                 } else {
                     service.salvar(lancamento).then((lancamentoResposta) => {
                         setId(lancamentoResposta.id);
                         setMessages([{
                             tipo: "success",
-                            texto: "Produto salvo com sucesso.",
+                            texto: "Lançamento salvo com sucesso.",
                         }]);
-                        // Atualizar lista de lançamentos
-                        
+                        mutate('/api/lancamentos?usuario=1');
                     });
                 }
             })
             .catch((err) => {
                 const field = err.path;
                 const message = err.message;
-
-                setErrors({
-                    [field]: message
-                });
+                setErrors({ [field]: message });
             });
     };
-
     return (
         <div>
             <Layout titulo="Cadastro de Lançamentos" mensagens={messages}>
@@ -166,16 +154,18 @@ export const CadastroLancamentos: React.FC = () => {
                             maxLength={16}
                             error={erros.valor}
                         />
-                        <Input
-                            label="Data: *"
-                            columnClasses="is-one-third"
-                            onChange={handleDateChange}
-                            value={data}
-                            id="inputData"
-                            type="input"
-                            placeholder="Digite uma data"
-                            error={erros.data}
-                        />
+                        
+                            <Input
+                                label="Data: *"
+                                columnClasses="is-one-third"
+                                onChange={handleDateChange}
+                                value={data} // Aqui é onde você passará a data no formato dd/mm/yyyy
+                                id="inputData"
+                                type="input"
+                                placeholder="Digite uma data"
+                                error={erros.data}
+                            />
+                       
                     </div>
 
                     <div className="columns">
