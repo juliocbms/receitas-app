@@ -4,20 +4,26 @@ export const formatarData = (value: string): string => {
     // Se estiver no formato yyyy-mm-dd, converte para dd/mm/yyyy
     if (value.includes("-")) {
         const [ano, mes, dia] = value.split("-");
+        
+        // Retorna no formato DD/MM/YYYY
         return `${dia}/${mes}/${ano}`;
     }
     
-    // Remove caracteres não numéricos
-    value = value.replace(/\D/g, "");
+    // Se a data estiver no formato YYYYMMDD ou DDMMYYYY (8 caracteres)
+    else if (value.length === 8) {
+        // Se a data estiver no formato YYYYMMDD
+        if (/^\d{8}$/.test(value)) {
+            // Formata como DD/MM/YYYY
+            return `${value.substring(6, 8)}/${value.substring(4, 6)}/${value.substring(0, 4)}`;
+        }
+    }
 
-    // Formata DDMMYYYY para DD/MM/YYYY
-    if (value.length === 8) {
-        value = value.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
-    } else if (value.length > 4) {
+    // Se a data estiver no formato DDMM (4 caracteres)
+    else if (value.length === 4) {
         // Formata parcialmente DDMM para DD/MM
         return value.replace(/(\d{2})(\d{2})/, "$1/$2");
     }
 
-    // Caso a data não esteja no formato esperado, mantém o valor original
+    // Caso a data não esteja no formato esperado, retorna o valor original
     return value;
 };

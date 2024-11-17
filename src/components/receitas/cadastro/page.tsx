@@ -78,10 +78,31 @@ export const CadastroLancamentos: React.FC = () => {
         }
     }, [searchParams]);
 
+<<<<<<< HEAD
     const handleDateChange = (value: string) => {
         const formattedValue = formatarData(value);
         setData(formattedValue);
+=======
+     const handleDateChange = (value: string) => {
+        // Remove qualquer coisa que não seja número (para permitir apenas os números)
+        let cleanedValue = value.replace(/\D/g, "");
+        
+        // Formatar a data automaticamente com a barra
+        if (cleanedValue.length <= 2) {
+            // Se o número de caracteres for <= 2, formato como DD
+            cleanedValue = cleanedValue.replace(/(\d{2})/, "$1");
+        } else if (cleanedValue.length <= 4) {
+            // Se o número de caracteres for <= 4, formato como DD/MM
+            cleanedValue = cleanedValue.replace(/(\d{2})(\d{2})/, "$1/$2");
+        } else {
+            // Se o número de caracteres for <= 8, formato como DD/MM/YYYY
+            cleanedValue = cleanedValue.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
+        }
+    
+        setData(cleanedValue); // Atualiza o estado com o valor formatado
+>>>>>>> 594844f (new commit)
     };
+    
 
     const submit = () => {
         // Converte data para yyyy-mm-dd antes de enviar
