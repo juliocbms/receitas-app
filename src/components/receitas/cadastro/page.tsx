@@ -12,6 +12,7 @@ import { LayoutLista } from "@/components/page"; // Para a lista de lançamentos
 import * as yup from "yup";
 import { useRouter, useSearchParams } from "next/navigation";
 
+
 const msgCampoObrigatorio = "Campo Obrigatório";
 
 const validationSchema = yup.object().shape({
@@ -57,17 +58,15 @@ export const CadastroLancamentos: React.FC = () => {
         if (id) {
             service.carregarProduto(Number(id))
                 .then((lancamento: Lancamento) => {
-                    console.log('Lançamento carregado:', lancamento); // Verifique a estrutura de dados aqui
                     setId(lancamento.id);
                     setLancamentoTipo(lancamento.tipo || "");
                     setNome(lancamento.nome || "");
                     setDescricao(lancamento.descricao || "");
                     setValor(lancamento.valor ? lancamento.valor.toString() : "0");
                     
-                    // Formatar a data no formato dd/mm/yyyy
-                    const formattedDate = formatarData(lancamento.data || "");
-                    console.log('Data formatada:', formattedDate); // Verifique se a data está sendo formatada corretamente
-                    setData(formattedDate);
+                    // Formatar a data para exibição no formato DD/MM/YYYY
+                    const formattedDate = formatarData(lancamento.datalancamento || ""); // Formata a data para DD/MM/YYYY
+                    setData(formattedDate);  // Agora a data está no formato correto para exibição
                 })
                 .catch((err) => {
                     setMessages([{
@@ -76,11 +75,13 @@ export const CadastroLancamentos: React.FC = () => {
                     }]);
                 });
         }
-    }, [searchParams]); // A dependência é o id, então a função será chamada quando o id mudar
+    }, [searchParams]);
+    
+     // A dependência é o id, então a função será chamada quando o id mudar
 
     const handleDateChange = (value: string) => {
         const formattedValue = formatarData(value); 
-        setData(formattedValue); 
+        setData(formattedValue);  // Atualizar o valor da data com o formato DD/MM/YYYY
     };
 
     const submit = () => {
