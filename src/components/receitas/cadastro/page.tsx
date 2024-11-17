@@ -11,7 +11,6 @@ import { Alert } from "@/components/common/message/page";
 import { LayoutLista } from "@/components/page"; // Para a lista de lançamentos
 import * as yup from "yup";
 import { useRouter, useSearchParams } from "next/navigation";
-import useSWR, { mutate } from "swr";
 
 
 const msgCampoObrigatorio = "Campo Obrigatório";
@@ -27,7 +26,7 @@ const validationSchema = yup.object().shape({
     data: yup
         .string()
         .required(msgCampoObrigatorio)
-        .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Data deve estar no formato dd/mm/yyyy"),
+        .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Data deve estar no formato dd/MM/yyyy"),
 });
 
 interface FormErros {
@@ -51,14 +50,12 @@ export const CadastroLancamentos: React.FC = () => {
     const [messages, setMessages] = useState<Array<Alert>>([]);
     const [erros, setErrors] = useState<FormErros>({}); 
     const [listaLancamentos, setListaLancamentos] = useState<Lancamento[]>([]);
-    const [isEditMode, setIsEditMode] = useState<boolean>(false);
-    const [datacadastro, setDataCadastro] = useState<string>("");
-     
 
+    // Carregar dados do lançamento caso o id esteja presente na URL
     useEffect(() => {
-        const id = searchParams.get("id");
+        const id = searchParams.get("id"); // Pega o id da URL
+        
         if (id) {
-            setIsEditMode(true); // Habilita o modo de edição
             service.carregarProduto(Number(id))
                 .then((lancamento: Lancamento) => {
                     setId(lancamento.id);
@@ -66,8 +63,10 @@ export const CadastroLancamentos: React.FC = () => {
                     setNome(lancamento.nome || "");
                     setDescricao(lancamento.descricao || "");
                     setValor(lancamento.valor ? lancamento.valor.toString() : "0");
-                    setData(formatarData(lancamento.datalancamento || "")); 
-                    setDataCadastro(formatarData(lancamento.datacadastro || ""));
+                    
+                    // Formatar a data para exibição no formato DD/MM/YYYY
+                    const formattedDate = formatarData(lancamento.datalancamento || ""); // Formata a data para DD/MM/YYYY
+                    setData(formattedDate);  // Agora a data está no formato correto para exibição
                 })
                 .catch((err) => {
                     setMessages([{
@@ -77,12 +76,9 @@ export const CadastroLancamentos: React.FC = () => {
                 });
         }
     }, [searchParams]);
+    
+     // A dependência é o id, então a função será chamada quando o id mudar
 
-<<<<<<< HEAD
-    const handleDateChange = (value: string) => {
-        const formattedValue = formatarData(value);
-        setData(formattedValue);
-=======
      const handleDateChange = (value: string) => {
         // Remove qualquer coisa que não seja número (para permitir apenas os números)
         let cleanedValue = value.replace(/\D/g, "");
@@ -100,27 +96,31 @@ export const CadastroLancamentos: React.FC = () => {
         }
     
         setData(cleanedValue); // Atualiza o estado com o valor formatado
->>>>>>> 594844f (new commit)
     };
     
 
     const submit = () => {
-        // Converte data para yyyy-mm-dd antes de enviar
-        const [dia, mes, ano] = data.split("/");
-        const formattedDateForAPI = `${ano}-${mes}-${dia}`;
-    
+        const formattedDate = data.replace(/\D/g, "");
+        const dia = parseInt(formattedDate.slice(0, 2), 10);
+        const mes = parseInt(formattedDate.slice(2, 4), 10);
+        const ano = parseInt(formattedDate.slice(4, 8), 10);
+
+        const formattedDateForAPI = `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+
         const lancamento: Lancamento = {
             descricao,
-            data: formattedDateForAPI, // Formato yyyy-mm-dd
-            datalancamento: formattedDateForAPI,
+            data, 
+            datalancamento: formattedDateForAPI, 
+            dia,
+            mes,
+            ano,
             valor: converterEmBigDecimal(valor),
             tipo: lancamentoTipo.toUpperCase(),
             usuario: parseInt(usuario),
             nome,
             id,
-            datacadastro: formattedDateForAPI
         };
-    
+
         validationSchema
             .validate(lancamento)
             .then(() => {
@@ -129,27 +129,35 @@ export const CadastroLancamentos: React.FC = () => {
                     service.atualizar(lancamento).then(() => {
                         setMessages([{
                             tipo: "success",
-                            texto: "Lançamento atualizado com sucesso.",
+                            texto: "Produto atualizado com sucesso.",
                         }]);
-                        mutate('/api/lancamentos?usuario=1');
+                        // Atualizar lista de lançamentos
+                        
                     });
                 } else {
                     service.salvar(lancamento).then((lancamentoResposta) => {
                         setId(lancamentoResposta.id);
                         setMessages([{
                             tipo: "success",
-                            texto: "Lançamento salvo com sucesso.",
+                            texto: "Produto salvo com sucesso.",
                         }]);
-                        mutate('/api/lancamentos?usuario=1');
+
+                        
+                        // Atualizar lista de lançamentos
+                        
                     });
                 }
             })
             .catch((err) => {
                 const field = err.path;
                 const message = err.message;
-                setErrors({ [field]: message });
+
+                setErrors({
+                    [field]: message
+                });
             });
     };
+
     return (
         <div>
             <Layout titulo="Cadastro de Lançamentos" mensagens={messages}>
@@ -176,18 +184,16 @@ export const CadastroLancamentos: React.FC = () => {
                             maxLength={16}
                             error={erros.valor}
                         />
-                        
-                            <Input
-                                label="Data: *"
-                                columnClasses="is-one-third"
-                                onChange={handleDateChange}
-                                value={data} // Aqui é onde você passará a data no formato dd/mm/yyyy
-                                id="inputData"
-                                type="input"
-                                placeholder="Digite uma data"
-                                error={erros.data}
-                            />
-                       
+                        <Input
+                            label="Data: *"
+                            columnClasses="is-one-third"
+                            onChange={handleDateChange}
+                            value={data}
+                            id="inputData"
+                            type="input"
+                            placeholder="Digite uma data"
+                            error={erros.data}
+                        />
                     </div>
 
                     <div className="columns">
