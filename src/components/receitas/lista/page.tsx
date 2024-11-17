@@ -10,6 +10,7 @@ import { AxiosResponse } from 'axios';
 import { Loader } from '@/components/page';
 import { useRouter } from 'next/navigation'; 
 
+
 interface LayoutProps {
     titulo?: string;
     children?: ReactNode;
@@ -19,18 +20,21 @@ interface LayoutProps {
 export const LayoutLista: React.FC<LayoutProps> = ({ titulo, children, mensagens }) => {
     const { data: result, error } = useSWR<AxiosResponse<Lancamento[]>>('/api/lancamentos?usuario=1', (url: string) => httpClient.get(url));
     const router = useRouter();
-    // Verifica se houve um erro ao carregar os dados
+    
     if (error) {
+        console.error('Erro ao carregar dados dos lançamentos', error);
         return <div>Erro ao carregar dados</div>;
     }
+    
+  
 
     const editar = (lancamento: Lancamento) => {
         const url = `/cadastros/receitas?id=${lancamento.id}`;
-        router.push(url); // Atualizado
+        router.push(url); 
     };
 
     const deletar = (lancamento: Lancamento) => {
-        console.log(lancamento);  // Aqui você pode adicionar a lógica de exclusão
+        console.log(lancamento);  
     };
 
     return (

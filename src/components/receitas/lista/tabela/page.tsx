@@ -21,7 +21,7 @@ export const TabelaLancamentos: React.FC<TabelaLancamentosProps> = ({
                     <th><abbr title="Valor do Lançamento">Valor</abbr></th>
                     <th><abbr title="Tipo do Lançamento">Tipo</abbr></th>
                     <th><abbr title="Data do Lançamento">Data Lançamento</abbr></th>
-
+                    
                     <th></th>
                 </tr>
             </thead>
@@ -50,6 +50,7 @@ const LancamentoRow: React.FC<LancamentoRowProps> = ({ lancamento, onDelete, onE
             <td>{lancamento.valor}</td>
             <td>{lancamento.tipo}</td>
             <td>{lancamento.datalancamento}</td>
+            
             
             <td>
                 <button onClick={e => onEdit(lancamento)} className="button is-success is-rounded is-small">Editar</button>
