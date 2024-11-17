@@ -10,6 +10,7 @@ import { formatarData } from "@/app/util/data/page";
 import { Alert } from "@/components/common/message/page";
 import { LayoutLista } from "@/components/page"; // Para a lista de lançamentos
 import * as yup from "yup";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const msgCampoObrigatorio = "Campo Obrigatório";
 
@@ -20,11 +21,11 @@ const validationSchema = yup.object().shape({
     valor: yup
         .number()
         .required(msgCampoObrigatorio)
-        .moreThan(0, " Valor deve ser maior do que 0,00 (Zero)"),
+        .moreThan(0, "Valor deve ser maior do que 0,00 (Zero)"),
     data: yup
         .string()
         .required(msgCampoObrigatorio)
-        .matches(/^\d{2}\/\d{2}\/\d{4}$/, " Data deve estar no formato dd/MM/yyyy"),
+        .matches(/^\d{2}\/\d{2}\/\d{4}$/, "Data deve estar no formato dd/MM/yyyy"),
 });
 
 interface FormErros {
@@ -36,22 +37,49 @@ interface FormErros {
 }
 
 export const CadastroLancamentos: React.FC = () => {
-    const service = useLancamentoService();
-
-    const [lancamentos, setLancamento] = useState<string>(""); 
-    const [valor, setValor] = useState<string>("");
-    const [data, setData] = useState<string>("");
-    const [nome, setNome] = useState<string>("");
-    const [descricao, setDescricao] = useState<string>("");
+    const service = useLancamentoService();  
+    const searchParams = useSearchParams()
+    const [lancamentoTipo, setLancamentoTipo] = useState<string>("");
+    const [valor, setValor] = useState<string>(""); 
+    const [data, setData] = useState<string>(""); 
+    const [nome, setNome] = useState<string>(""); 
+    const [descricao, setDescricao] = useState<string>(""); 
     const [usuario, setUsuario] = useState<string>("1");
-    const [id, setId] = useState<string | undefined>("");
+    const [id, setId] = useState<string | undefined>(""); 
     const [messages, setMessages] = useState<Array<Alert>>([]);
-    const [erros, setErrors] = useState<FormErros>({});
+    const [erros, setErrors] = useState<FormErros>({}); 
     const [listaLancamentos, setListaLancamentos] = useState<Lancamento[]>([]);
 
-    // Função para formatar a data
+    // Carregar dados do lançamento caso o id esteja presente na URL
+    useEffect(() => {
+        const id = searchParams.get("id"); // Pega o id da URL
+        
+        if (id) {
+            service.carregarProduto(Number(id))
+                .then((lancamento: Lancamento) => {
+                    console.log('Lançamento carregado:', lancamento); // Verifique a estrutura de dados aqui
+                    setId(lancamento.id);
+                    setLancamentoTipo(lancamento.tipo || "");
+                    setNome(lancamento.nome || "");
+                    setDescricao(lancamento.descricao || "");
+                    setValor(lancamento.valor ? lancamento.valor.toString() : "0");
+                    
+                    // Formatar a data no formato dd/mm/yyyy
+                    const formattedDate = formatarData(lancamento.data || "");
+                    console.log('Data formatada:', formattedDate); // Verifique se a data está sendo formatada corretamente
+                    setData(formattedDate);
+                })
+                .catch((err) => {
+                    setMessages([{
+                        tipo: "error",
+                        texto: "Erro ao carregar os dados do lançamento",
+                    }]);
+                });
+        }
+    }, [searchParams]); // A dependência é o id, então a função será chamada quando o id mudar
+
     const handleDateChange = (value: string) => {
-        const formattedValue = formatarData(value);
+        const formattedValue = formatarData(value); 
         setData(formattedValue); 
     };
 
@@ -71,7 +99,7 @@ export const CadastroLancamentos: React.FC = () => {
             mes,
             ano,
             valor: converterEmBigDecimal(valor),
-            tipo: lancamentos.toUpperCase(),
+            tipo: lancamentoTipo.toUpperCase(),
             usuario: parseInt(usuario),
             nome,
             id,
@@ -112,19 +140,16 @@ export const CadastroLancamentos: React.FC = () => {
             });
     };
 
-    
-
     return (
         <div>
-            {/* Layout de Cadastro */}
             <Layout titulo="Cadastro de Lançamentos" mensagens={messages}>
                 <section className="section">
                     <div className="columns">
                         <Input
                             label="Tipo Lançamento: *"
                             columnClasses="is-one-third"
-                            onChange={setLancamento}
-                            value={lancamentos}
+                            onChange={setLancamentoTipo}
+                            value={lancamentoTipo}
                             id="tipoReceita"
                             type="select"
                             error={erros.tipo}
@@ -191,7 +216,6 @@ export const CadastroLancamentos: React.FC = () => {
                     </div>
                 </section>
             </Layout>
-
             {/* Layout de Lista */}
             <LayoutLista titulo="">
                 <section className="section">
@@ -207,7 +231,7 @@ export const CadastroLancamentos: React.FC = () => {
                                 </div>
                             ))
                         ) : (
-                            <p>Não há lançamentos cadastrados.</p>
+                            <br></br>
                         )}
                     </div>
                 </section>

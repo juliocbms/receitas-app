@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import 'bulma/css/bulma.css'
-
+import '@/components/common/loader/loader.css'
 
 
 
