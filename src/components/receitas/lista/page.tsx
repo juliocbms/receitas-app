@@ -9,6 +9,8 @@ import { httpClient } from '@/app/http/page';
 import { AxiosResponse } from 'axios';
 import { Loader } from '@/components/page';
 import { useRouter } from 'next/navigation'; 
+import { useLancamentoService } from '@/app/services/lancamento.service';
+import { useState, useEffect } from "react";
 
 
 interface LayoutProps {
@@ -18,8 +20,16 @@ interface LayoutProps {
 }
 
 export const LayoutLista: React.FC<LayoutProps> = ({ titulo, children, mensagens }) => {
+    const service = useLancamentoService()
+    const [messages, setMessages] = useState<Array<Alert>>([]);
     const { data: result, error } = useSWR<AxiosResponse<Lancamento[]>>('/api/lancamentos?usuario=1', (url: string) => httpClient.get(url));
     const router = useRouter();
+
+    const [lista, setLista] = useState<Lancamento[]>([])
+
+    useEffect( () =>{
+        setLista(result?.data || [])
+    }, [result])
     
     if (error) {
         console.error('Erro ao carregar dados dos lançamentos', error);
@@ -34,11 +44,24 @@ export const LayoutLista: React.FC<LayoutProps> = ({ titulo, children, mensagens
     };
 
     const deletar = (lancamento: Lancamento) => {
-        console.log(lancamento);  
+        const id = Number(lancamento.id); // Forçar conversão para número
+        if (id) {
+            service.deletar(id).then(response => {
+                setMessages([
+                    { tipo: "success", texto: "Produto excluído com sucesso!" }
+                ]);
+            }).catch(error => {
+                console.error("Erro ao excluir produto", error);
+            });
+        } else {
+            console.error('ID do lançamento não é válido');
+        } const listaAlterada: Lancamento[] = lista?.filter( l => l.id !== lancamento.id)
+        setLista(listaAlterada)
     };
+    
 
     return (
-        <div className="app">
+        <div className="app" >
             <section className="main-content columns is-fullheight">
                 <MenuDois />
                 <div className="container column is-10">
@@ -50,7 +73,12 @@ export const LayoutLista: React.FC<LayoutProps> = ({ titulo, children, mensagens
                             <div className="card-content">
                                 <div className="content">
                                     <Loader show={!result} />
-                                    <TabelaLancamentos onEdit={editar} onDelete={deletar} lancamentos={result?.data || []} />
+                                    <TabelaLancamentos onEdit={editar} onDelete={deletar} lancamentos={lista} />
+                                    {messages && messages.map((msg, index) => (
+                                        <div key={index} className={`alert ${msg.tipo}`}>
+                                            {msg.texto}
+                                        </div>
+                                    ))}
                                     {children}
                                 </div>
                             </div>

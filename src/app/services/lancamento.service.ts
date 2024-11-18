@@ -22,9 +22,15 @@ export const useLancamentoService = () => {
         return response.data;
     };
 
+    const deletar = async (id: number): Promise<void> =>{
+        const url: string = `${resourceURL}/${id}`;
+        await httpClient.delete(url)
+    }
+
     return {
         salvar,
         atualizar,
-        carregarProduto,  // Certifique-se de retornar a função
+        carregarProduto,
+        deletar  // Certifique-se de retornar a função
     };
 };

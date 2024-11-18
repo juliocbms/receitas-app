@@ -1,4 +1,5 @@
 import { Lancamento } from "@/app/models/lancamentos/page";
+import { useState } from "react";
 
 interface TabelaLancamentosProps {
     lancamentos: Array<Lancamento>;
@@ -42,6 +43,20 @@ interface LancamentoRowProps {
 }
 
 const LancamentoRow: React.FC<LancamentoRowProps> = ({ lancamento, onDelete, onEdit }) => {
+
+    const [deletando, setDeletando] = useState<boolean>(false)
+
+    const onDeletePop = (lancamento: Lancamento) =>{
+        if(deletando){
+            onDelete(lancamento)
+            setDeletando(false)
+        }else{
+            setDeletando(true)
+        }
+    }
+
+    const cancelaDelete = ( ) => setDeletando(false)
+
     return (
         <tr>
             <td>{lancamento.id}</td>
@@ -53,8 +68,15 @@ const LancamentoRow: React.FC<LancamentoRowProps> = ({ lancamento, onDelete, onE
             
             
             <td>
-                <button onClick={e => onEdit(lancamento)} className="button is-success is-rounded is-small">Editar</button>
-                <button onClick={e => onDelete(lancamento)} className="button is-danger is-rounded is-small">Deletar</button>
+                {!deletando &&
+                    <button onClick={e => onEdit(lancamento)} className="button is-success is-rounded is-small">Editar</button>
+                }
+                <button onClick={e => onDeletePop(lancamento)} className="button is-danger is-rounded is-small">
+                    { deletando ? "Confirmar?" : "Deletar"}</button>    
+                {deletando &&
+                    <button onClick={cancelaDelete} className="button  is-rounded is-small">Cancelar</button>
+                }           
+                
             </td>
         </tr>
     );

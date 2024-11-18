@@ -1,5 +1,5 @@
 export interface Lancamento {
-    id?: string;
+    id?: string ;
     nome?: string;
     valor?: number;
     data?: string; 
