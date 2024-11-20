@@ -38,7 +38,7 @@ interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaEle
 
 type InputProps =
     | (SelectInputProps & { type: "select" })
-    | (TextInputProps & { type: "input" })
+    | (TextInputProps & { type: "input"  | "password" | "email"})
     | (TextareaInputProps & { type: "textarea" });
 
 
@@ -54,16 +54,16 @@ export const Input: React.FC<InputProps> = ({
     ...rest
 }) => {
     const handleChange = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
-
-        let value = event.target.value
-
+        if (!event.target) return; // Garante que event.target existe
+    
+        let value = event.target.value;
+    
         if (value && currency) {
-            value = formatReal(value)
+            value = formatReal(value); // Formata como moeda, se necessário
         }
-
-
+    
         if (onChange) {
-            onChange(value);
+            onChange(value); // Passa o valor atualizado para o handler pai
         }
     };
 
@@ -112,6 +112,7 @@ export const Input: React.FC<InputProps> = ({
             <label className="label" htmlFor={id}>{label}</label>
             <input
                 id={id}
+                type={type}
                 value={value}
                 onChange={handleChange}
                 className="input"

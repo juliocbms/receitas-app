@@ -11,6 +11,8 @@ import { Alert } from "@/components/common/message/page";
 import { LayoutLista } from "@/components/page"; // Para a lista de lançamentos
 import * as yup from "yup";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
 
 
 const msgCampoObrigatorio = "Campo Obrigatório";
@@ -160,6 +162,7 @@ export const CadastroLancamentos: React.FC = () => {
 
     return (
         <div>
+            <div></div>
             <Layout titulo="Cadastro de Lançamentos" mensagens={messages}>
                 <section className="section">
                     <div className="columns">

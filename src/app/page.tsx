@@ -6,8 +6,10 @@ const Home: React.FC = () =>{
   return (
     <div>
       
+        <Layout/>
+      
 
-      <Layout/>
+      
     </div>
   );
 }
