@@ -27,7 +27,7 @@ export const LoginPage: React.FC = () => {
 
     const result = await signIn("credentials", {
       ...data,
-      callbackUrl: "/",
+      callbackUrl: "/dashboard",
     });
 
     if (result?.error) {
