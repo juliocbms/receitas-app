@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import LogOutButton from "@/components/login/logout/page";
 
 
 export const MenuDois: React.FC = () => {
@@ -11,6 +12,7 @@ export const MenuDois: React.FC = () => {
             </ul>
         </aside>
     )
+    
 }
 
 interface MenuItemProps {

@@ -11,6 +11,7 @@ interface TextInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'on
     currency?: boolean
     error?: string;
     type?: string
+    email?: string;
 }
 
 
@@ -22,6 +23,7 @@ interface SelectInputProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>,
     id: string;
     currency?: boolean
     error?: string;
+    email?: string;
 }
 
 interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
@@ -33,6 +35,7 @@ interface TextareaInputProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaEle
     currency?: boolean
     error?: string;
     type?: string
+    email?: string;
 }
 
 
@@ -51,6 +54,7 @@ export const Input: React.FC<InputProps> = ({
     type,
     currency,
     error,
+    email,
     ...rest
 }) => {
     const handleChange = (event: ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {

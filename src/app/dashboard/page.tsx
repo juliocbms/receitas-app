@@ -9,12 +9,12 @@ export default async function DashboardPage() {
   console.log("Sessão atual:", session);
   // Se não estiver autenticado, redireciona para o login
   if (!session) {
-    redirect("/login");
+    redirect("/Log");
   }
 
   return (
     <div>
-      <h1>Bem-vindo(a), {session?.user?.nome}!</h1>
+      <h1>Bem-vindo(a), {session?.user?.name}!</h1>
       <p>Este é o painel do dashboard.</p>
       <div>
         <LogOutButton/>

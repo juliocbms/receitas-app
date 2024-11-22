@@ -1,5 +1,7 @@
 import React from "react";
 import Link from "next/link";
+import LogOutButton from "@/components/login/logout/page";
+import { signOut } from "next-auth/react";
 
 
 export const Menu: React.FC = () => {
@@ -11,8 +13,11 @@ export const Menu: React.FC = () => {
             <li><a href="/cadastros/receitas">Lançamentos</a></li>
             <li><a>Orçamentos</a></li>
             <li><a>Investimentos</a></li>
+            <div> <LogOutButton/></div>
             </ul>
+            
         </aside>
+        
     )
 }
 

@@ -1,37 +1,37 @@
-"use client"; // Diretiva para indicar que o componente é do lado do cliente
+"use client"; 
 
-import { useState, useEffect } from "react";
-import { Layout } from "../login/layout"; // Layout de login
-import { Input } from "@/components/page"; // Componente de input reutilizável
-import { useRouter } from "next/navigation"; // Para navegação
-import { signIn } from "next-auth/react"; // Para autenticação via NextAuth
+import { useState } from "react";
+import { Layout } from "../login/layout"; 
+import { Input } from "@/components/page"; 
+import { signIn } from "next-auth/react"; 
+import { useSearchParams } from "next/navigation";
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [email, setEmail] = useState<string>("");  // Controle para o email
+  const [password, setPassword] = useState<string>("");  // Controle para a senha
 
-  const router = useRouter();
+  const serchParams = useSearchParams();
+  const error = serchParams.get('error');
 
   const entrar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
 
-    try {
-      // Tentando fazer login com NextAuth
-      const res = await signIn("credentials", {
-        redirect: false, // Não faz redirecionamento automático
-        email,
-        password,
-      });
+    const data = {
+      email: formData.get("email"),
+      password: formData.get("password"),
+    };
 
-      if (res?.error) {
-        setErrorMessage("Credenciais inválidas.");
-      } else if (res?.ok) {
-        router.push("/dashboard");
-      }
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      setErrorMessage("Erro ao fazer login.");
+    console.log(data);
+
+    const result = await signIn("credentials", {
+      ...data,
+      callbackUrl: "/",
+    });
+
+    if (result?.error) {
+      setErrorMessage("Credenciais inválidas. Tente novamente.");
     }
   };
 
@@ -39,14 +39,15 @@ export const LoginPage: React.FC = () => {
     <Layout titulo="Login">
       <form onSubmit={entrar}>
         {errorMessage && <div style={{ color: "red", marginBottom: "1rem" }}>{errorMessage}</div>}
-
+        {error === "CredentialsSignin" && <div style={{ color: "red", marginBottom: "1rem" }}>Erro ao logar.</div>}
         <div className="columns">
           <Input
             label="Email: *"
             columnClasses="is-full"
-            type="input"
-            value={email}
-            onChange={(value) => setEmail(value)}
+            type="email"
+            name="email"
+            value={email}  // Passando o valor para o Input
+            onChange={(value) => setEmail(value)}  // Atualizando o estado
             placeholder="Digite seu email"
             id="inputEmail"
           />
@@ -57,8 +58,9 @@ export const LoginPage: React.FC = () => {
             label="Senha: *"
             columnClasses="is-full"
             type="password"
-            value={password}
-            onChange={(value) => setPassword(value)}
+            name="password"
+            value={password}  // Passando o valor para o Input
+            onChange={(value) => setPassword(value)}  // Atualizando o estado
             placeholder="Digite sua senha"
             id="inputSenha"
           />
