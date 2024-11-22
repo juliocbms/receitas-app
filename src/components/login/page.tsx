@@ -1,58 +1,52 @@
-"use client";
+"use client"; // Diretiva para indicar que o componente é do lado do cliente
 
-import { useState } from "react";
-import { Layout } from "../login/layout"; // Importando o layout de login
-import { Input } from "@/components/page"; // Componente Input reutilizável
-import { useRouter } from "next/navigation"; // Para redirecionar após o login
-import { Alert } from "@/components/common/message/page"; // Para mensagens de alerta
-import { signIn } from "next-auth/react";
-
-interface LoginForm {
-  email: string;
-  senha: string;
-}
+import { useState, useEffect } from "react";
+import { Layout } from "../login/layout"; // Layout de login
+import { Input } from "@/components/page"; // Componente de input reutilizável
+import { useRouter } from "next/navigation"; // Para navegação
+import { signIn } from "next-auth/react"; // Para autenticação via NextAuth
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState<string>("");  // Definindo o estado para email
-  const [password, setPassword] = useState<string>(""); 
-  const [errorMessage, setErrorMessage] = useState(""); // Definindo o estado para senha
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const router = useRouter();  // Hook para redirecionamento após login
+  const router = useRouter();
 
-  async function login(e: React.FormEvent<HTMLFormElement>) {
+  const entrar = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-      callbackUrl: "/dashboard", // Define o callbackUrl para onde redirecionar após o login
-    });
 
-    console.log("Resultado do login:", result); // Inspecione o que o signIn retorna
-  
-    if (result?.error) {
-      setErrorMessage("Credenciais inválidas.");
-    } else {
-      // Usando result.url que é onde o NextAuth redirecionaria automaticamente
-      router.push(result?.url || "/"); // Redireciona para a URL fornecida no result.url ou para uma página padrão
+    try {
+      // Tentando fazer login com NextAuth
+      const res = await signIn("credentials", {
+        redirect: false, // Não faz redirecionamento automático
+        email,
+        password,
+      });
+
+      if (res?.error) {
+        setErrorMessage("Credenciais inválidas.");
+      } else if (res?.ok) {
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      console.error("Erro ao fazer login:", error);
+      setErrorMessage("Erro ao fazer login.");
     }
-  }
+  };
 
   return (
     <Layout titulo="Login">
-      <form onSubmit={login}>
-      {errorMessage && (
-          <div style={{ color: 'red', marginBottom: '1rem' }}>
-          {errorMessage}
-        </div>)}
+      <form onSubmit={entrar}>
+        {errorMessage && <div style={{ color: "red", marginBottom: "1rem" }}>{errorMessage}</div>}
+
         <div className="columns">
           <Input
             label="Email: *"
             columnClasses="is-full"
             type="input"
             value={email}
-            onChange={(value) => setEmail(value)} // Atualiza o estado do email
+            onChange={(value) => setEmail(value)}
             placeholder="Digite seu email"
             id="inputEmail"
           />
@@ -64,7 +58,7 @@ export const LoginPage: React.FC = () => {
             columnClasses="is-full"
             type="password"
             value={password}
-            onChange={(value) => setPassword(value)} // Atualiza o estado da senha
+            onChange={(value) => setPassword(value)}
             placeholder="Digite sua senha"
             id="inputSenha"
           />
@@ -74,7 +68,7 @@ export const LoginPage: React.FC = () => {
           <div className="control">
             <button type="submit" className="button is-link">
               Entrar
-            </button>            
+            </button>
           </div>
         </div>
       </form>

@@ -1,10 +1,9 @@
-// src/app/dashboard/page.tsx
-import LogOutButton from "@/components/login/logout/page";
 import { getServerSession } from "next-auth";
-import { signOut } from "next-auth/react";
 import { redirect } from "next/navigation";
+import LogOutButton from "@/components/login/logout/page";
 
 export default async function DashboardPage() {
+  // Verifica a sessão do usuário no lado do servidor
   const session = await getServerSession();
 
   console.log("Sessão atual:", session);
@@ -15,7 +14,7 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1>Bem-vindo(a), {session.user?.name}!</h1>
+      <h1>Bem-vindo(a), {session?.user?.nome}!</h1>
       <p>Este é o painel do dashboard.</p>
       <div>
         <LogOutButton/>

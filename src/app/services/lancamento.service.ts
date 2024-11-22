@@ -27,10 +27,16 @@ export const useLancamentoService = () => {
         await httpClient.delete(url)
     }
 
+    const listar = async () : Promise<Lancamento[]> => {
+        const response: AxiosResponse<Lancamento[]> = await httpClient.get(resourceURL)
+        return response.data
+    }
+
     return {
         salvar,
         atualizar,
         carregarProduto,
-        deletar  // Certifique-se de retornar a função
+        deletar,
+        listar  // Certifique-se de retornar a função
     };
 };

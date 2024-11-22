@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import 'bulma/css/bulma.css'
 import '@/components/common/loader/loader.css'
-
+import { SessionProvider } from "next-auth/react";
 
 
 export const metadata: Metadata = {
@@ -15,6 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    
     <html lang="en">
       <body>
         {children}
