@@ -11,43 +11,30 @@ export const useLancamentoService = () => {
     };
 
     const salvar = async (lancamento: Lancamento): Promise<Lancamento> => {
-        try {
-            const token = getTokenFromCookie(); // Agora buscamos o token do cookie
-            console.log("Token JWT encontrado:", token); // Verifique se o token foi encontrado no cookie
+        const token = getTokenFromCookie();
     
-            if (!token) {
-                throw new Error("Token de autenticação não encontrado no cookie.");
-            }
-    
-            const url = resourceURL;
-    
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,  // Passa o token no cabeçalho
-                },
-                body: JSON.stringify(lancamento),
-            });
-    
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Erro ao salvar o lançamento: ${response.status} - ${errorText}`);
-            }
-    
-            const data: Lancamento = await response.json();
-            return data;
-    
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error("Erro ao realizar a requisição:", error);
-                throw new Error(`Erro ao salvar o lançamento: ${error.message}`);
-            } else {
-                console.error("Erro desconhecido:", error);
-                throw new Error("Erro desconhecido ao salvar o lançamento.");
-            }
+        if (!token) {
+            throw new Error("Token de autenticação não encontrado no cookie.");
         }
+    
+        const response = await fetch('http://localhost:8080/api/lancamentos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            credentials: 'include', // Enviar credenciais (cookies)
+            body: JSON.stringify(lancamento),
+        });
+    
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Erro ao salvar o lançamento: ${response.status} - ${errorText}`);
+        }
+    
+        return await response.json();
     };
+    
     
 
     const atualizar = async (lancamento: Lancamento): Promise<void> => {
@@ -115,7 +102,7 @@ export const useLancamentoService = () => {
     };
 
     const listar = async (): Promise<Lancamento[]> => {
-        const token = getToken(); // Obtém o token de autenticação
+        const token = getTokenFromCookie(); // Obtém o token de autenticação
 
         if (!token) {
             throw new Error('Token de autenticação não encontrado.');

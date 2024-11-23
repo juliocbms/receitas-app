@@ -10,9 +10,9 @@ import { formatarData } from "@/app/util/data/page";
 import { Alert } from "@/components/common/message/page";
 import { LayoutLista } from "@/components/page"; // Para a lista de lançamentos
 import * as yup from "yup";
-import { useRouter, useSearchParams } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 
 
 const msgCampoObrigatorio = "Campo Obrigatório";
@@ -40,6 +40,7 @@ interface FormErros {
 }
 
 export const CadastroLancamentos: React.FC = () => {
+    const { data: session } = useSession();
     const service = useLancamentoService();  
     const searchParams = useSearchParams()
     const [lancamentoTipo, setLancamentoTipo] = useState<string>(""); 
@@ -47,12 +48,13 @@ export const CadastroLancamentos: React.FC = () => {
     const [data, setData] = useState<string>(""); 
     const [nome, setNome] = useState<string>(""); 
     const [descricao, setDescricao] = useState<string>(""); 
-    const [usuario, setUsuario] = useState<string>("1"); 
+    const [usuario, setUsuario] = useState<string>("40"); 
     const [id, setId] = useState<string | undefined>(""); 
     const [messages, setMessages] = useState<Array<Alert>>([]); 
     const [erros, setErrors] = useState<FormErros>({}); 
     const [listaLancamentos, setListaLancamentos] = useState<Lancamento[]>([]);
 
+    const usuarioid = session?.user?.id;
     // Carregar dados do lançamento caso o id esteja presente na URL
     useEffect(() => {
         const id = searchParams.get("id"); // Pega o id da URL
@@ -90,6 +92,9 @@ export const CadastroLancamentos: React.FC = () => {
     };
 
     const submit = () => {
+
+
+        
         const formattedDate = data.replace(/\D/g, "");
         const dia = parseInt(formattedDate.slice(0, 2), 10);
         const mes = parseInt(formattedDate.slice(2, 4), 10);
