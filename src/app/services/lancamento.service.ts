@@ -1,5 +1,5 @@
 import { Lancamento } from '@/app/models/lancamentos/page';
-
+import { getTokenFromCookie } from '../libs/cookies.ts/cookies';
 const resourceURL: string = "http://localhost:8080/api/lancamentos"; // Ajuste conforme necessário
 
 export const useLancamentoService = () => {
@@ -12,30 +12,32 @@ export const useLancamentoService = () => {
 
     const salvar = async (lancamento: Lancamento): Promise<Lancamento> => {
         try {
-            const url = resourceURL;
-            const token = getToken(); // Obtém o token de autenticação
-
+            const token = getTokenFromCookie(); // Agora buscamos o token do cookie
+            console.log("Token JWT encontrado:", token); // Verifique se o token foi encontrado no cookie
+    
             if (!token) {
-                throw new Error('Token de autenticação não encontrado.');
+                throw new Error("Token de autenticação não encontrado no cookie.");
             }
-
+    
+            const url = resourceURL;
+    
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,  // Adiciona o token no cabeçalho
+                    'Authorization': `Bearer ${token}`,  // Passa o token no cabeçalho
                 },
                 body: JSON.stringify(lancamento),
             });
-
+    
             if (!response.ok) {
-                const errorText = await response.text(); // Obtenha o corpo da resposta de erro
+                const errorText = await response.text();
                 throw new Error(`Erro ao salvar o lançamento: ${response.status} - ${errorText}`);
             }
-
+    
             const data: Lancamento = await response.json();
             return data;
-
+    
         } catch (error: unknown) {
             if (error instanceof Error) {
                 console.error("Erro ao realizar a requisição:", error);
@@ -46,6 +48,7 @@ export const useLancamentoService = () => {
             }
         }
     };
+    
 
     const atualizar = async (lancamento: Lancamento): Promise<void> => {
         const url: string = `${resourceURL}/${lancamento.id}/atualizar`;

@@ -42,14 +42,14 @@ interface FormErros {
 export const CadastroLancamentos: React.FC = () => {
     const service = useLancamentoService();  
     const searchParams = useSearchParams()
-    const [lancamentoTipo, setLancamentoTipo] = useState<string>("");
+    const [lancamentoTipo, setLancamentoTipo] = useState<string>(""); 
     const [valor, setValor] = useState<string>(""); 
     const [data, setData] = useState<string>(""); 
     const [nome, setNome] = useState<string>(""); 
     const [descricao, setDescricao] = useState<string>(""); 
-    const [usuario, setUsuario] = useState<string>("1");
+    const [usuario, setUsuario] = useState<string>("1"); 
     const [id, setId] = useState<string | undefined>(""); 
-    const [messages, setMessages] = useState<Array<Alert>>([]);
+    const [messages, setMessages] = useState<Array<Alert>>([]); 
     const [erros, setErrors] = useState<FormErros>({}); 
     const [listaLancamentos, setListaLancamentos] = useState<Lancamento[]>([]);
 
@@ -65,10 +65,8 @@ export const CadastroLancamentos: React.FC = () => {
                     setNome(lancamento.nome || "");
                     setDescricao(lancamento.descricao || "");
                     setValor(lancamento.valor ? lancamento.valor.toString() : "0");
-                    
-                    // Formatar a data para exibição no formato DD/MM/YYYY
-                    const formattedDate = formatarData(lancamento.datalancamento || ""); // Formata a data para DD/MM/YYYY
-                    setData(formattedDate);  // Agora a data está no formato correto para exibição
+                    const formattedDate = formatarData(lancamento.datalancamento || ""); 
+                    setData(formattedDate); 
                 })
                 .catch((err) => {
                     setMessages([{
@@ -78,35 +76,24 @@ export const CadastroLancamentos: React.FC = () => {
                 });
         }
     }, [searchParams]);
-    
-     // A dependência é o id, então a função será chamada quando o id mudar
 
-     const handleDateChange = (value: string) => {
-        // Remove qualquer coisa que não seja número (para permitir apenas os números)
+    const handleDateChange = (value: string) => {
         let cleanedValue = value.replace(/\D/g, "");
-        
-        // Formatar a data automaticamente com a barra
         if (cleanedValue.length <= 2) {
-            // Se o número de caracteres for <= 2, formato como DD
             cleanedValue = cleanedValue.replace(/(\d{2})/, "$1");
         } else if (cleanedValue.length <= 4) {
-            // Se o número de caracteres for <= 4, formato como DD/MM
             cleanedValue = cleanedValue.replace(/(\d{2})(\d{2})/, "$1/$2");
         } else {
-            // Se o número de caracteres for <= 8, formato como DD/MM/YYYY
             cleanedValue = cleanedValue.replace(/(\d{2})(\d{2})(\d{4})/, "$1/$2/$3");
         }
-    
-        setData(cleanedValue); // Atualiza o estado com o valor formatado
+        setData(cleanedValue);
     };
-    
 
     const submit = () => {
         const formattedDate = data.replace(/\D/g, "");
         const dia = parseInt(formattedDate.slice(0, 2), 10);
         const mes = parseInt(formattedDate.slice(2, 4), 10);
         const ano = parseInt(formattedDate.slice(4, 8), 10);
-
         const formattedDateForAPI = `${ano}-${String(mes).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
 
         const lancamento: Lancamento = {
@@ -134,7 +121,7 @@ export const CadastroLancamentos: React.FC = () => {
                             texto: "Produto atualizado com sucesso.",
                         }]);
                         // Atualizar lista de lançamentos
-                        
+                        service.listar().then(setListaLancamentos);
                     });
                 } else {
                     service.salvar(lancamento).then((lancamentoResposta) => {
@@ -143,17 +130,14 @@ export const CadastroLancamentos: React.FC = () => {
                             tipo: "success",
                             texto: "Produto salvo com sucesso.",
                         }]);
-
-                        
                         // Atualizar lista de lançamentos
-                        
+                        service.listar().then(setListaLancamentos);
                     });
                 }
             })
             .catch((err) => {
                 const field = err.path;
                 const message = err.message;
-
                 setErrors({
                     [field]: message
                 });
@@ -237,8 +221,8 @@ export const CadastroLancamentos: React.FC = () => {
                     </div>
                 </section>
             </Layout>
-            {/* Layout de Lista */}
-            <LayoutLista titulo="">
+
+            <LayoutLista titulo="Lista de Lançamentos">
                 <section className="section">
                     <div className="columns">
                         {listaLancamentos.length > 0 ? (
@@ -252,7 +236,7 @@ export const CadastroLancamentos: React.FC = () => {
                                 </div>
                             ))
                         ) : (
-                            <br></br>
+                            <p>Nenhum lançamento encontrado.</p>
                         )}
                     </div>
                 </section>

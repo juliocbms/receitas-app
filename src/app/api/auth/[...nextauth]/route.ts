@@ -38,7 +38,7 @@ const handler = NextAuth({
           if (!authData.token || !authData.nome) {
             return null; // Token ou nome ausentes na resposta
           }
-          (await cookies()).set("jwt", authData.jwt)
+          (await cookies()).set("jwt", authData.token)
       
           return {
             id: authData.id, // Você pode usar um ID único se disponível
